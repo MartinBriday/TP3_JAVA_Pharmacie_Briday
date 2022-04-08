@@ -1,6 +1,11 @@
 package com.intiformation;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+
+import com.intiformation.exception.CreditNegException;
+import com.intiformation.exception.DepassementCreditException;
+import com.intiformation.exception.PaiementNegException;
 
 public class Client {
 
@@ -8,6 +13,7 @@ public class Client {
 	private String nom;
 	private String prenom;
 	private double credit;
+	//private ArrayList<ArrayList<String>> listeTransaction = new ArrayList<ArrayList<String>>();
 	private static DecimalFormat decf = new DecimalFormat("#.##");
 
 	public Client() {
@@ -22,22 +28,21 @@ public class Client {
 		this.credit = 0.;
 	}
 
-	public void augmenterCredit(double prix) {
-		if (prix > 0) {
-			this.credit += prix;
+	public void crediter(double prix) throws CreditNegException {
+		if (prix < 0) {
+			throw new CreditNegException();
 		}
-		else {
-			System.err.println("!!! Erreur !!! Crédit négatif! Opération annulée!");
-		}
+		this.credit += prix;
 	}
 
-	public void réduireCredit(double prix) {
-		if (prix > 0) {
-			this.credit -= prix;
+	public void payer(double prix) throws PaiementNegException, DepassementCreditException {
+		if (prix < 0) {
+			throw new PaiementNegException();
 		}
-		else {
-			System.err.println("!!! Erreur !!! Paiement négatif! Opération annulée!");
+		if ((this.credit - prix) < 0) {
+			throw new DepassementCreditException();
 		}
+		this.credit -= prix;
 	}
 
 	public int getId() {

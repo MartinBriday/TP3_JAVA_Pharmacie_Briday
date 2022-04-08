@@ -9,14 +9,20 @@ public class Main {
 
 		Pharmacie pharmacie = new Pharmacie();
 		
+		
+		/////////////////////////////////////////
+		/// Base de travail : non nécessaire! ///
+		/////////////////////////////////////////
 		pharmacie.addClient("Dupond", "Pierre");
 		pharmacie.addClient("Dupont", "Sophie");
-		
+
 		pharmacie.addMedicament("Doliprane", 1.35);
 		pharmacie.addMedicament("Pansement", 3.56);
-		
+
 		pharmacie.approvisionner("Doliprane", 500);
+		/////////////////////////////////////////
 		
+		// Initialisation des variables utilisateurs
 		boolean runtime = true;
 		int userChoice = 0;
 		int userChoiceInfo = 0;
@@ -25,8 +31,11 @@ public class Main {
 		String nomMedicament = "";
 		String categorie = "";
 		Scanner sc = new Scanner(System.in);
-
-		System.out.println("Bonjour");
+		
+		
+		// Lancement de l'application
+		System.out.println("###############################################################");
+		System.out.println("########################   Bonjour!   #########################");
 		while (runtime) {
 			System.out.println("###############################################################");
 			System.out.println("Que voulez-vous faire? ");
@@ -38,57 +47,66 @@ public class Main {
 			System.out.println("	[0] : Quitter?");
 			userChoice = sc.nextInt();
 			System.out.println("###############################################################");
-			
+
 			switch (userChoice) {
 			case 1:
 				System.out.println("####################   Ajouter un client   ####################");
+				System.out.println("###############################################################");
 				pharmacie.addClient();
 				System.out.println("###############################################################");
 				break;
 
 			case 2:
 				System.out.println("##################   Ajouter un médicament   ##################");
+				System.out.println("###############################################################");
 				pharmacie.addMedicament();
 				System.out.println("###############################################################");
 				break;
 
 			case 3:
-				System.out.println("#####################   Approvisionner   ######################");
+				System.out.println("##############   Approvisionner un médicament   ###############");
+				System.out.println("###############################################################");
 				pharmacie.approvisionner();
 				System.out.println("###############################################################");
 				break;
 
 			case 4:
 				System.out.println("####################   Réaliser un achat   ####################");
+				System.out.println("###############################################################");
 				pharmacie.achat();
 				System.out.println("###############################################################");
 				break;
 
 			case 5:
+				System.out.println("################   Afficher les informations   ################");
+				System.out.println("###############################################################");
 				System.out.println("Voulez-vous afficher les informations :");
 				System.out.println("	[1] : d'un client?");
 				System.out.println("	[2] : d'un médicament?");
-				System.out.println("	[3] : d'une liste complète de l'un ou l'autre?");
+				System.out.println("	[3] : d'une liste complète de l'une ou l'autre catégorie?");
 				userChoiceInfo = sc.nextInt();
 				System.out.println("###############################################################");
 				switch (userChoiceInfo) {
 				case 1:
 					System.out.println("Quel est le nom du client?");
 					nomClient = sc.next();
-					System.out.println("Quel est le prenom du client?");
+					System.out.println("Quel est le prénom du client?");
 					prenomClient = sc.next();
+					System.out.println("###############################################################");
 					pharmacie.print(nomClient, prenomClient);
 					break;
-				
+
 				case 2:
 					System.out.println("Quel est le nom du médicament?");
 					nomMedicament = sc.next();
+					System.out.println("###############################################################");
 					pharmacie.print(nomMedicament);
 					break;
-					
+
 				case 3:
-					System.out.println("Quelle catégorie? [client ou medicament]");
+					System.out.println("Quelle catégorie? ['client' ou 'medicament']");
 					categorie = sc.next();
+					System.out.println("###############################################################");
 					pharmacie.printListe(categorie);
 					break;
 
@@ -102,7 +120,9 @@ public class Main {
 			case 0:
 				runtime = false;
 				sc.close();
-				System.out.println("Fin de l'application! A bientôt!");
+				System.out.println("Fin de l'application!");
+				System.out.println("###############################################################");
+				System.out.println("#######################   A bientôt!   ########################");
 				System.out.println("###############################################################");
 				break;
 

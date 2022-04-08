@@ -2,6 +2,9 @@ package com.intiformation;
 
 import java.text.DecimalFormat;
 
+import com.intiformation.exception.nbMedicamentNegException;
+import com.intiformation.exception.notEnoughStockException;
+
 public class Medicament {
 
 	private int id;
@@ -22,28 +25,21 @@ public class Medicament {
 		this.stock = 0;
 	}
 
-	public void approvisionner(int quantite) {
-		if (quantite > 0) {
-			this.stock += quantite;
+	public void approvisionner(int quantite) throws nbMedicamentNegException {
+		if (quantite < 0) {
+			throw new nbMedicamentNegException();
 		}
-		else {
-			System.err.println("!!! Erreur !!! Approvisionnement négatif! Opération annulée!");
-		}
+		this.stock += quantite;
 	}
 
-	public void deduire(int quantite) {
-		if (quantite > 0) {
-			if ((this.stock - quantite) > 0) {
-				this.stock -= quantite;
-			}
-			else {
-				System.err
-						.println("!!! Erreur !!! Quantité demandée supérieure au stock disponible! Opération annulée!");
-			}
+	public void deduire(int quantite) throws nbMedicamentNegException, notEnoughStockException {
+		if (quantite < 0) {
+			throw new nbMedicamentNegException();
 		}
-		else {
-			System.err.println("!!! Erreur !!! Quantité négative! Opération annulée!");
+		if ((this.stock - quantite) < 0) {
+			throw new notEnoughStockException();
 		}
+		this.stock -= quantite;
 	}
 
 	public int getId() {

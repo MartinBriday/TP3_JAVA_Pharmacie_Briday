@@ -2,6 +2,7 @@ package com.intiformation;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.TreeMap;
 
 import com.intiformation.exception.CreditNegException;
 import com.intiformation.exception.DepassementCreditException;
@@ -13,7 +14,7 @@ public class Client {
 	private String nom;
 	private String prenom;
 	private double credit;
-	//private ArrayList<ArrayList<String>> listeTransaction = new ArrayList<ArrayList<String>>();
+	private TreeMap<Integer, String> listeTransaction = new TreeMap<Integer, String>();
 	private static DecimalFormat decf = new DecimalFormat("#.##");
 
 	public Client() {
@@ -43,6 +44,23 @@ public class Client {
 			throw new DepassementCreditException();
 		}
 		this.credit -= prix;
+	}
+
+	public void addTransaction(String transaction) {
+		this.listeTransaction.put(this.listeTransaction.size() + 1, transaction);
+	}
+
+	public void addTransaction(int idMedicament, String nomMedicament, double prixUnitaire, int quantite,
+			double paiement, double credit) {
+		String _transaction = String.format(
+				"[idMédicament=%d ; médicament=%s ; prix unitaire=%s ; quantité=%d ; prix total=%s ; paiement=%s ; crédit=%s]",
+				idMedicament, nomMedicament, decf.format(prixUnitaire), quantite, decf.format(prixUnitaire * quantite),
+				decf.format(paiement), decf.format(credit));
+		addTransaction(_transaction);
+	}
+
+	public void addTransaction(Medicament medicament, int quantite, double paiement, double credit) {
+		addTransaction(medicament.getId(), medicament.getNom(), medicament.getPrix(), quantite, paiement, credit);
 	}
 
 	public int getId() {
@@ -77,10 +95,18 @@ public class Client {
 		this.credit = credit;
 	}
 
+	public TreeMap<Integer, String> getListeTransaction() {
+		return listeTransaction;
+	}
+
+	public void setListeTransaction(TreeMap<Integer, String> listeTransaction) {
+		this.listeTransaction = listeTransaction;
+	}
+
 	@Override
 	public String toString() {
-		return "Client [id=" + id + " ; nom=" + nom + " ; prenom=" + prenom + " ; credit=" + decf.format(credit)
-				+ "€" + "]";
+		return "Client [id=" + id + " ; nom=" + nom + " ; prenom=" + prenom + " ; credit=" + decf.format(credit) + "€"
+				+ "]";
 	}
 
 }

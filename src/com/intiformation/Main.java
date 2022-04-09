@@ -84,6 +84,8 @@ public class Main {
 				System.out.println("	[1] : d'un client?");
 				System.out.println("	[2] : d'un médicament?");
 				System.out.println("	[3] : d'une liste complète de l'une ou l'autre catégorie?");
+				System.out.println("	[4] : des transactions d'un client?");
+				System.out.println("	[5] : des transactions d'un médicament?");
 				userChoiceInfo = sc.nextInt();
 				System.out.println("###############################################################");
 				switch (userChoiceInfo) {
@@ -108,6 +110,22 @@ public class Main {
 					categorie = sc.next();
 					System.out.println("###############################################################");
 					pharmacie.printListe(categorie);
+					break;
+					
+				case 4:
+					System.out.println("Quel est le nom du client?");
+					nomClient = sc.next();
+					System.out.println("Quel est le prénom du client?");
+					prenomClient = sc.next();
+					System.out.println("###############################################################");
+					pharmacie.printTransaction(nomClient, prenomClient);
+					break;
+
+				case 5:
+					System.out.println("Quel est le nom du médicament?");
+					nomMedicament = sc.next();
+					System.out.println("###############################################################");
+					pharmacie.printTransaction(nomMedicament);
 					break;
 
 				default:

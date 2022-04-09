@@ -135,6 +135,7 @@ public class Pharmacie {
 		Medicament _medicament = getMedicament(nom);
 		try {
 			_medicament.approvisionner(stock);
+			_medicament.addTransaction(stock, _medicament.getStock());
 			System.out.println("Approvisionnement effectuée!");
 		}
 		catch (nbMedicamentNegException _e) {
@@ -167,6 +168,8 @@ public class Pharmacie {
 			_client.crediter(_prix);
 			_client.payer(paiement);
 			_medicament.deduire(quantite);
+			_client.addTransaction(_medicament, quantite, paiement, _client.getCredit());
+			_medicament.addTransaction(_client, quantite, paiement, _medicament.getStock());
 			System.out.println("Achat effectuée!");
 		}
 		catch (CreditNegException _e) {
@@ -266,6 +269,20 @@ public class Pharmacie {
 		}
 		else {
 			System.err.printf("La catégorie '%s' n'est pas valide! Entrer 'client' ou 'medicament'.%n", categorie);
+		}
+	}
+	
+	public void printTransaction(String nomClient, String prenomClient) {
+		Client _client = getClient(nomClient, prenomClient);
+		for (Map.Entry<Integer, String> _t : _client.getListeTransaction().entrySet()) {
+			System.out.println(_t.getValue());
+		}
+	}
+	
+	public void printTransaction(String nomMedicament) {
+		Medicament _medicament = getMedicament(nomMedicament);
+		for (Map.Entry<Integer, String> _t : _medicament.getListeTransaction().entrySet()) {
+			System.out.println(_t.getValue());
 		}
 	}
 

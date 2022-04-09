@@ -3,6 +3,7 @@ package com.intiformation;
 import java.text.DecimalFormat;
 import java.util.TreeMap;
 
+import com.intiformation.exception.PrixNegException;
 import com.intiformation.exception.nbMedicamentNegException;
 import com.intiformation.exception.notEnoughStockException;
 
@@ -19,10 +20,13 @@ public class Medicament {
 		super();
 	}
 
-	public Medicament(int id, String nom, double prix) {
+	public Medicament(int id, String nom, double prix) throws PrixNegException {
 		super();
 		this.id = id;
 		this.nom = nom;
+		if (prix < 0.) {
+			throw new PrixNegException();
+		}
 		this.prix = prix;
 		this.stock = 0;
 	}

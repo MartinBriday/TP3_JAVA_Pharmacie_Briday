@@ -10,6 +10,7 @@ import java.util.TreeMap;
 import com.intiformation.exception.CreditNegException;
 import com.intiformation.exception.DepassementCreditException;
 import com.intiformation.exception.PaiementNegException;
+import com.intiformation.exception.PrixNegException;
 import com.intiformation.exception.nbMedicamentNegException;
 import com.intiformation.exception.notEnoughStockException;
 
@@ -26,21 +27,23 @@ public class Pharmacie {
 		super();
 	}
 
-	public void addClient(String nom, String prenom, boolean forceAdd) {
-		boolean hasClient = false;
+	public boolean hasClient(String nom, String prenom) {
 		for (Map.Entry<Integer, Client> _c : listeClient.entrySet()) {
 			if (_c.getValue().getNom().equals(nom) && _c.getValue().getPrenom().equals(prenom)) {
-				hasClient = true;
-				break;
+				return true;
 			}
 		}
-		if (!hasClient || forceAdd) {
+		return false;
+	}
+
+	public void addClient(String nom, String prenom) {
+		if (!hasClient(nom, prenom)) {
 			compteurClient++;
 			listeClient.put(compteurClient, new Client(compteurClient, nom, prenom));
 			System.out.println("Client ajouté!");
 		}
 		else {
-			System.err.println(String.format("Le client '%s %s' existe déjà dans la base de données.", nom, prenom));
+			System.err.println(String.format("Le client '%s %s' existe déjà dans la base de données!", nom, prenom));
 			char _choice;
 			do {
 				System.out.println("Voulez-vous en créer un nouveau? [o/n] : ");
@@ -62,24 +65,37 @@ public class Pharmacie {
 		String _nom = sc.next();
 		System.out.println("Quel est le prénom du client?");
 		String _prenom = sc.next();
-		addClient(_nom, _prenom, false);
+		char _choice;
+		do {
+			System.out.println(
+					String.format("Etes-vous sûr de vouloir ajouter le client '%s %s'? [o/n] : ", _nom, _prenom));
+			_choice = sc.next().charAt(0);
+		} while (!(_choice == 'o' || _choice == 'n'));
+		if (_choice == 'o') {
+			addClient(_nom, _prenom);
+		}
+		else {
+			System.err.println("Opération annulée!");
+		}
 	}
 
-	public void addMedicament(String nom, double prix) {
-		boolean hasMedicament = false;
+	public boolean hasMedicament(String nom) {
 		for (Map.Entry<Integer, Medicament> _c : listeMedicament.entrySet()) {
 			if (_c.getValue().getNom().equals(nom)) {
-				hasMedicament = true;
-				break;
+				return true;
 			}
 		}
-		if (!hasMedicament) {
+		return false;
+	}
+
+	public void addMedicament(String nom, double prix) throws PrixNegException {
+		if (!hasMedicament(nom)) {
 			compteurMedicament++;
 			listeMedicament.put(compteurMedicament, new Medicament(compteurMedicament, nom, prix));
 			System.out.println("Médicament ajouté!");
 		}
 		else {
-			System.err.println(String.format("Le médicament '%s' existe déjà dans la base de données.", nom));
+			System.err.println(String.format("Le médicament '%s' existe déjà dans la base de données!", nom));
 			char _choice;
 			do {
 				System.out.println("Voulez-vous en créer un nouveau? [o/n] : ");
@@ -96,38 +112,62 @@ public class Pharmacie {
 		}
 	}
 
+	public void addMedicament(String nom) {
+		double _prix;
+		boolean hasException;
+		do {
+			try {
+				System.out.println("Quel est le prix du médicament?");
+				_prix = sc.nextDouble();
+				char _choice;
+				do {
+					System.out.println(
+							String.format("Etes-vous sûr de vouloir ajouter le médicament '%s' (prix: %s€)? [o/n] : ",
+									nom, decf.format(_prix)));
+					_choice = sc.next().charAt(0);
+				} while (!(_choice == 'o' || _choice == 'n'));
+				if (_choice == 'o') {
+					addMedicament(nom, _prix);
+					hasException = false;
+				}
+				else {
+					System.err.println("Opération annulée!");
+					break;
+				}
+			}
+			catch (PrixNegException e) {
+				// TODO Auto-generated catch block
+				compteurMedicament--;
+				hasException = true;
+			}
+		} while (hasException);
+	}
+
 	public void addMedicament() {
 		System.out.println("Quel est le nom du médicament?");
 		String _nom = sc.next();
-		System.out.println("Quel est le prix du médicament?");
-		double _prix = sc.nextDouble();
-		addMedicament(_nom, _prix);
+		addMedicament(_nom);
 	}
 
 	public Client getClient(int id) {
 		if (listeClient.containsKey(id)) {
 			return listeClient.get(id);
 		}
-		else {
-
-		}
-		System.err.println(String.format("Le client '%d' n'existe pas dans la base de données.", id));
+		System.err.println(String.format("Le client '%d' n'existe pas dans la base de données!", id));
 		return null;
 	}
 
-	public Client getClient(String nom, String prenom, boolean forceAdd) {
-		TreeMap<Integer, Client> _listeCLient = new TreeMap<Integer, Client>();
-		for (Map.Entry<Integer, Client> _c : listeClient.entrySet()) {
-			if (_c.getValue().getNom().equals(nom) && _c.getValue().getPrenom().equals(prenom)) {
-				_listeCLient.put(_c.getKey(), _c.getValue());
-			}
-		}
-		if (_listeCLient.size() == 1 && !forceAdd) {
-			return getClient(_listeCLient.firstKey());
-		}
-		else if (_listeCLient.size() > 1 && !forceAdd) {
-			System.out.println(String.format("Il existe plusieurs '%s %s' dans la base de données.", nom, prenom));
+	public Client getClient(String nom, String prenom) {
+		char _choice;
+		if (hasClient(nom, prenom)) {
 			int _id;
+			TreeMap<Integer, Client> _listeCLient = new TreeMap<Integer, Client>();
+			for (Map.Entry<Integer, Client> _c : listeClient.entrySet()) {
+				if (_c.getValue().getNom().equals(nom) && _c.getValue().getPrenom().equals(prenom)) {
+					_listeCLient.put(_c.getKey(), _c.getValue());
+				}
+			}
+			printListeClient(nom, prenom);
 			do {
 				System.out.println(String.format("Préciser l'identifiant %s : ",
 						Arrays.toString(_listeCLient.keySet().toArray())));
@@ -135,16 +175,13 @@ public class Pharmacie {
 			} while (!(_listeCLient.containsKey(_id)));
 			return getClient(_id);
 		}
-		char _choice = 0;
-		if (!forceAdd) {
-			do {
-				System.err.println(String.format("Le client '%s %s' n'existe pas.", nom, prenom));
-				System.out.println(String.format("Voulez-vous ajouter le client '%s %s' à la base de données? [o/n] : ",
-						nom, prenom));
-				_choice = sc.next().charAt(0);
-			} while (!(_choice == 'o' || _choice == 'n'));
-		}
-		if (_choice == 'o' || forceAdd) {
+		do {
+			System.err.println(String.format("Le client '%s %s' n'existe pas dans la base de données!", nom, prenom));
+			System.out.println(
+					String.format("Voulez-vous ajouter le client '%s %s' à la base de données? [o/n] : ", nom, prenom));
+			_choice = sc.next().charAt(0);
+		} while (!(_choice == 'o' || _choice == 'n'));
+		if (_choice == 'o') {
 			do {
 				System.out.println(String.format(
 						"Etes-vous sûr de vouloir ajouter le client '%s %s' à la base de données? [o/n] : ", nom,
@@ -152,7 +189,7 @@ public class Pharmacie {
 				_choice = sc.next().charAt(0);
 			} while (!(_choice == 'o' || _choice == 'n'));
 			if (_choice == 'o') {
-				addClient(nom, prenom, true);
+				addClient(nom, prenom);
 				return getClient(compteurClient);
 			}
 		}
@@ -163,23 +200,21 @@ public class Pharmacie {
 		if (listeMedicament.containsKey(id)) {
 			return listeMedicament.get(id);
 		}
-		System.err.println(String.format("Le médicament '%d' n'existe pas dans la base de données.", id));
+		System.err.println(String.format("Le médicament '%d' n'existe pas dans la base de données!", id));
 		return null;
 	}
 
 	public Medicament getMedicament(String nom) {
-		TreeMap<Integer, Medicament> _listeMedicament = new TreeMap<Integer, Medicament>();
-		for (Map.Entry<Integer, Medicament> _m : listeMedicament.entrySet()) {
-			if (_m.getValue().getNom().equals(nom)) {
-				_listeMedicament.put(_m.getKey(), _m.getValue());
-			}
-		}
-		if (_listeMedicament.size() == 1) {
-			return getMedicament(_listeMedicament.firstKey());
-		}
-		else if (_listeMedicament.size() > 1) {
-			System.out.println(String.format("Il existe plusieurs médicaments '%s' dans la base de données.", nom));
+		char _choice;
+		if (hasMedicament(nom)) {
 			int _id;
+			TreeMap<Integer, Medicament> _listeMedicament = new TreeMap<Integer, Medicament>();
+			for (Map.Entry<Integer, Medicament> _m : listeMedicament.entrySet()) {
+				if (_m.getValue().getNom().equals(nom)) {
+					_listeMedicament.put(_m.getKey(), _m.getValue());
+				}
+			}
+			printListeMedicament(nom);
 			do {
 				System.out.println(String.format("Préciser l'identifiant %s : ",
 						Arrays.toString(_listeMedicament.keySet().toArray())));
@@ -187,27 +222,15 @@ public class Pharmacie {
 			} while (!(_listeMedicament.containsKey(_id)));
 			return getMedicament(_id);
 		}
-		char _choice;
 		do {
 			System.err.println(String.format("Le médicament '%s' n'existe pas.", nom));
 			System.out.println("Voulez-vous l'ajouter à la base de données? [o/n] : ");
 			_choice = sc.next().charAt(0);
 		} while (!(_choice == 'o' || _choice == 'n'));
 		if (_choice == 'o') {
-			do {
-				System.out.println(String.format(
-						"Etes-vous sûr de vouloir ajouter le médicament '%s' à la base de données? [o/n] : ", nom));
-				_choice = sc.next().charAt(0);
-			} while (!(_choice == 'o' || _choice == 'n'));
-			if (_choice == 'o') {
-				double _prix;
-				do {
-					System.out.println(String.format("Quel est le prix du médicament '%s'?", nom));
-					_prix = sc.nextDouble();
-				} while (_prix < 0.);
-				addMedicament(nom, _prix);
-				return getMedicament(compteurMedicament);
-			}
+			int _compteurMedicament = compteurMedicament;
+			addMedicament(nom);
+			if (_compteurMedicament == compteurMedicament + 1) return getMedicament(compteurMedicament);
 		}
 		return null;
 	}
@@ -219,6 +242,14 @@ public class Pharmacie {
 	}
 
 	public void approvisionner(String nom, int stock) {
+		char _choice;
+		do {
+			System.out.println(String.format("Voulez-vous créer un nouveau médicament '%s'? [o/n] : ", nom));
+			_choice = sc.next().charAt(0);
+		} while (!(_choice == 'o' || _choice == 'n'));
+		if (_choice == 'o') {
+			addMedicament(nom);
+		}
 		Medicament _medicament = getMedicament(nom);
 		try {
 			_medicament.approvisionner(stock);
@@ -231,6 +262,7 @@ public class Pharmacie {
 		catch (Exception _e) {
 			// TODO: handle exception
 			System.err.println(String.format("Le médicament '%s' n'existe pas dans la base de données!", nom));
+			System.err.println("!!! Erreur !!! Opération annulée!");
 			// _e.printStackTrace();
 		}
 	}
@@ -244,11 +276,12 @@ public class Pharmacie {
 	}
 
 	public void achat(Client client, Medicament medicament, int quantite, double paiement) {
-		double _prix = medicament.getPrix() * quantite;
+		double _prix;
 		char _choice;
 		double _paiement;
 
 		try {
+			_prix = medicament.getPrix() * quantite;
 			client.crediter(_prix);
 			client.payer(paiement);
 			medicament.deduire(quantite);
@@ -270,13 +303,10 @@ public class Pharmacie {
 			System.out.println("Combien compte payer le client?");
 			_paiement = sc.nextDouble();
 			try {
+				_prix = medicament.getPrix() * quantite;
 				client.payer(_prix);
 			}
-			catch (PaiementNegException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			catch (DepassementCreditException e) {
+			catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -300,17 +330,29 @@ public class Pharmacie {
 			if (_choice == 'o') {
 				System.out.println("Combien compte payer le client?");
 				_paiement = sc.nextDouble();
+
+				try {
+					client.crediter(paiement);
+					_prix = medicament.getPrix() * quantite;
+					client.payer(_prix);
+				}
+				catch (Exception e) {
+					// TODO Auto-generated catch block
+					System.err.println("!!! Erreur !!! Opération annulée!");
+				}
 				achat(client, medicament, _quantite, _paiement);
 			}
 			else {
 				System.err.println("!!! Erreur !!! Opération annulée!");
 			}
 		}
+		catch (Exception e) {
+			System.err.println("!!! Erreur !!! Opération annulée!");
+		}
 	}
 
-	public void achat(String nomClient, String prenomClient, String nomMedicament, int quantite, double paiement,
-			boolean forceAddClient) {
-		Client _client = getClient(nomClient, prenomClient, forceAddClient);
+	public void achat(String nomClient, String prenomClient, String nomMedicament, int quantite, double paiement) {
+		Client _client = getClient(nomClient, prenomClient);
 		Medicament _medicament = getMedicament(nomMedicament);
 		achat(_client, _medicament, quantite, paiement);
 	}
@@ -321,56 +363,71 @@ public class Pharmacie {
 		achat(_client, _medicament, quantite, paiement);
 	}
 
+	public void achat(String nomClient, String prenomClient, int idMedicament, int quantite, double paiement) {
+		Client _client = getClient(nomClient, prenomClient);
+		Medicament _medicament = getMedicament(idMedicament);
+		achat(_client, _medicament, quantite, paiement);
+	}
+
+	public void achat(int idClient, int idMedicament, int quantite, double paiement) {
+		Client _client = getClient(idClient);
+		Medicament _medicament = getMedicament(idMedicament);
+		achat(_client, _medicament, quantite, paiement);
+	}
+
 	public void achat() {
 		int _idClient = 0;
+		int _idMedicament = 0;
 		char _choice;
-		boolean _forceAddClient = false;
 		System.out.println("Quel est le nom du client?");
 		String _nomClient = sc.next();
 		System.out.println("Quel est le prénom du client?");
 		String _prenomClient = sc.next();
-		TreeMap<Integer, Client> _listeCLient = new TreeMap<Integer, Client>();
-		for (Map.Entry<Integer, Client> _c : listeClient.entrySet()) {
-			if (_c.getValue().getNom().equals(_nomClient) && _c.getValue().getPrenom().equals(_prenomClient)) {
-				_listeCLient.put(_c.getKey(), _c.getValue());
-			}
-		}
-		if (_listeCLient.size() >= 1) {
-			for (Map.Entry<Integer, Client> _c : _listeCLient.entrySet()) {
-				System.out.println(_c.getValue());
-			}
+		do {
+			System.out.println(
+					String.format("Voulez-vous créer un nouveau client '%s %s'? [o/n] : ", _nomClient, _prenomClient));
+			_choice = sc.next().charAt(0);
+		} while (!(_choice == 'o' || _choice == 'n'));
+		if (_choice == 'o') {
 			do {
-				System.out.println(String.format("Voulez-vous créer un nouveau client '%s %s'? [o/n] : ", _nomClient,
+				System.out.println(String.format(
+						"Etes-vous sûr de vouloir ajouter le client '%s %s' à la base de données? [o/n] : ", _nomClient,
 						_prenomClient));
 				_choice = sc.next().charAt(0);
 			} while (!(_choice == 'o' || _choice == 'n'));
 			if (_choice == 'o') {
-				_forceAddClient = true;
+				addClient(_nomClient, _prenomClient);
+			}
+		}
+		Client _client = getClient(_nomClient, _prenomClient);
+		if (_client != null) {
+			_idClient = _client.getId();
+			System.out.println("Quel est le nom du médicament?");
+			String _nomMedicament = sc.next();
+			if (hasMedicament(_nomMedicament)) {
+				Medicament _medicament = getMedicament(_nomMedicament);
+				_idMedicament = _medicament.getId();
+				System.out.println("Quel est la quantité souhaitée?");
+				int _quantite = sc.nextInt();
+				System.out.println("Combien compte payer le client?");
+				double _paiement = sc.nextDouble();
+				achat(_idClient, _idMedicament, _quantite, _paiement);
 			}
 			else {
-				do {
-					System.out.println(String.format("Quel est l'identifiant du client existant %s?",
-							Arrays.toString(_listeCLient.keySet().toArray())));
-					_idClient = sc.nextInt();
-				} while (!(_listeCLient.containsKey(_idClient)));
+				System.err.println(
+						String.format("Le médicament '%s' n'existe pas dans la base de données!", _nomMedicament));
+				System.err.println("Opération annulée!");
 			}
 		}
-		System.out.println("Quel est le nom du médicament?");
-		String _nomMedicament = sc.next();
-		System.out.println("Quel est la quantité souhaitée?");
-		int _quantite = sc.nextInt();
-		System.out.println("Combien compte payer le client?");
-		double _paiement = sc.nextDouble();
-		if (_idClient > 0) {
-			achat(_idClient, _nomMedicament, _quantite, _paiement);
-		}
 		else {
-			achat(_nomClient, _prenomClient, _nomMedicament, _quantite, _paiement, _forceAddClient);
+			System.err.println(String.format("Le client '%s %s' n'existe pas dans la base de données!", _nomClient,
+					_prenomClient));
+			System.err.println("Opération annulée!");
 		}
 	}
 
 	public void print(String nom, String prenom) {
-		System.out.println(getClient(nom, prenom, false));
+		System.out.println(getClient(nom, prenom));
 	}
 
 	public void print(String nom) {
@@ -394,8 +451,24 @@ public class Pharmacie {
 		}
 	}
 
+	public void printListeClient(String nom, String prenom) {
+		for (Map.Entry<Integer, Client> _c : listeClient.entrySet()) {
+			if (_c.getValue().getNom().equals(nom) && _c.getValue().getPrenom().equals(prenom)) {
+				System.out.println(_c.getValue());
+			}
+		}
+	}
+
+	public void printListeMedicament(String nom) {
+		for (Map.Entry<Integer, Medicament> _m : listeMedicament.entrySet()) {
+			if (_m.getValue().getNom().equals(nom)) {
+				System.out.println(_m.getValue());
+			}
+		}
+	}
+
 	public void printTransaction(String nomClient, String prenomClient) {
-		Client _client = getClient(nomClient, prenomClient, false);
+		Client _client = getClient(nomClient, prenomClient);
 		for (Map.Entry<Integer, String> _t : _client.getListeTransaction().entrySet()) {
 			System.out.println(_t.getValue());
 		}

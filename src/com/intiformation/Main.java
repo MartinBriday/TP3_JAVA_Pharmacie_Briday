@@ -2,6 +2,8 @@ package com.intiformation;
 
 import java.util.Scanner;
 
+import com.intiformation.exception.PrixNegException;
+
 public class Main {
 
 	public static void main(String[] args) {
@@ -13,13 +15,25 @@ public class Main {
 		/////////////////////////////////////////
 		/// Base de travail : non nécessaire! ///
 		/////////////////////////////////////////
-		pharmacie.addClient("Dupond", "Pierre", true);
-		pharmacie.addClient("Dupont", "Sophie", true);
+		pharmacie.addClient("Dupond", "Pierre");
+		pharmacie.addClient("Dupont", "Sophie");
 
-		pharmacie.addMedicament("Doliprane", 1.35);
-		pharmacie.addMedicament("Pansement", 3.56);
+		try {
+			pharmacie.addMedicament("Doliprane", 1.35);
+		}
+		catch (PrixNegException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			pharmacie.addMedicament("Pansement", 3.56);
+		}
+		catch (PrixNegException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-		pharmacie.approvisionner("Doliprane", 500);
+		pharmacie.getListeMedicament().get(1).setStock(500);
 		/////////////////////////////////////////
 		
 		// Initialisation des variables utilisateurs

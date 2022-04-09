@@ -50,9 +50,9 @@ public class Medicament {
 
 	public void addTransaction(int idClient, String nomClient, String prenomClient, int quantite, double paiement,
 			int stock) {
-		String _transaction = String.format(
-				"[type=achat ; idClient=%d ; nom=%s ; prenom=%s ; quantité=%d ; paiement=%s ; stock=%s]", idClient, nomClient,
-				prenomClient, quantite, decf.format(paiement), stock);
+		String _transaction = String.format("[type=achat ; idClient=%d ; nom=%s ; prenom=%s ; "
+				+ "quantité=%d ; paiement=%s€ ; stock=%s]", idClient,
+				nomClient, prenomClient, quantite, decf.format(paiement), stock);
 		addTransaction(_transaction);
 	}
 

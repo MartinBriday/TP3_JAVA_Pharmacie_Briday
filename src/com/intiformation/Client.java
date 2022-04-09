@@ -53,7 +53,8 @@ public class Client {
 	public void addTransaction(int idMedicament, String nomMedicament, double prixUnitaire, int quantite,
 			double paiement, double credit) {
 		String _transaction = String.format(
-				"[idMédicament=%d ; médicament=%s ; prix unitaire=%s ; quantité=%d ; prix total=%s ; paiement=%s ; crédit=%s]",
+				"[idMédicament=%d ; médicament=%s ; prix unitaire=%s ; "
+						+ "quantité=%d ; prix total=%s€ ; paiement=%s€ ; crédit=%s€]",
 				idMedicament, nomMedicament, decf.format(prixUnitaire), quantite, decf.format(prixUnitaire * quantite),
 				decf.format(paiement), decf.format(credit));
 		addTransaction(_transaction);

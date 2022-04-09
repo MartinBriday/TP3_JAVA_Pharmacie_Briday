@@ -13,8 +13,8 @@ public class Main {
 		/////////////////////////////////////////
 		/// Base de travail : non nécessaire! ///
 		/////////////////////////////////////////
-		pharmacie.addClient("Dupond", "Pierre");
-		pharmacie.addClient("Dupont", "Sophie");
+		pharmacie.addClient("Dupond", "Pierre", true);
+		pharmacie.addClient("Dupont", "Sophie", true);
 
 		pharmacie.addMedicament("Doliprane", 1.35);
 		pharmacie.addMedicament("Pansement", 3.56);
